@@ -6,20 +6,9 @@ import jwtDecode from 'jwt-decode'
 
 const Home = () => {
 
-  const { auth, login, logout } = useAuth()
+  const { auth, login, logout, refreshToken } = useAuth()
 
   useEffect(() => {
-    const refreshToken = async () => {
-      try {
-        const response = await axios.get('http://localhost:3001/api/auth/token')
-        if (response.status !== 204 && response.data) {
-          const decode = jwtDecode(response.data.accessToken)
-          login({ accessToken: response.data.accessToken, user: decode })
-        }
-      } catch (error) {
-        console.log(error)
-      }
-    }
     refreshToken()
   }, [])
 

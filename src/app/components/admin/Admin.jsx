@@ -7,48 +7,13 @@ import { useAuth } from '../../context/AuthContext'
 const Admin = () => {
 
   const navigate = useNavigate()
-  const { auth, login } = useAuth()
+  const { auth, login, refreshToken, axiosRefresh } = useAuth()
   const [showUsers, setShowUsers] = useState(false)
   const [users, setUsers] = useState([])
 
   useEffect(() => {
     refreshToken()
   }, [])
-
-  const refreshToken = async () => {
-    try {
-      const response = await axios.get('http://localhost:3001/api/auth/token')
-      if (response.status === 204 && !response.data) {
-        navigate('/')
-      } else {
-        const decode = jwtDecode(response.data.accessToken)
-        if (decode.role !== 'admin') {
-          navigate('/')
-        } else {
-          login({ accessToken: response.data.accessToken, user: decode })
-        }
-      }
-    } catch (error) {
-      return
-    }
-  }
-
-  const axiosRefresh = axios.create()
-  axiosRefresh.interceptors.request.use(async (config) => {
-    const currentDate = new Date()
-    if (auth.user.exp * 1000 < currentDate.getTime()) {
-      const response = await refreshToken()
-      login(response.data.accessToken)
-      config.headers.Authorization = `Bearer ${response.data.accessToken}`
-      const decoded = jwtDecode(response.data.accessToken)
-      if (decoded.role !== 'admin') {
-        navigate('/')
-      }
-    }
-    return config
-  }, (error) => {
-    return Promise.reject(error)
-  })
 
   const getUsers = async () => {
     setShowUsers(true)
